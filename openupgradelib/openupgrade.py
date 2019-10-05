@@ -513,9 +513,12 @@ def rename_columns(cr, column_spec):
                         table, old, new)
             cr.execute(
                 'ALTER TABLE "%s" RENAME "%s" TO "%s"' % (table, old, new,))
+            # PostgreSQL's Max Identifier Length Is 63 Bytes (NAMEDATALEN - 1)
+            max_len = 63 - len(new + '_index')
+            renamed_table = (table[:max_len]) if len(table) > max_len else table
             cr.execute(
                 'ALTER INDEX IF EXISTS "%s_%s_index" RENAME TO "%s_%s_index"' %
-                (table, old, table, new)
+                (table, old, renamed_table, new)
             )
 
 
